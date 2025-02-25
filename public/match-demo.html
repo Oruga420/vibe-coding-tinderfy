@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeApp - Matching Musical Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        h2 {
+            color: #8e2de2;
+            margin-top: 0;
+            border-bottom: 1px solid #f0ebfa;
+            padding-bottom: 0.5rem;
+        }
+        h3 {
+            color: #6b24b2;
+            margin-bottom: 0.7rem;
+        }
+        .match-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .match-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        .match-photo {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+        }
+        .match-info {
+            padding: 1rem;
+        }
+        .match-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+        .match-score {
+            display: inline-block;
+            background: #6b24b2;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        .match-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .match-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding: 0.5rem 1rem 1rem;
+        }
+        .match-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .accept-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        .accept-btn:hover {
+            background: #3d8c40;
+        }
+        .reject-btn {
+            background: #f44336;
+            color: white;
+        }
+        .reject-btn:hover {
+            background: #d32f2f;
+        }
+        .match-status {
+            padding: 0.5rem 1rem;
+            background: #f9f9f9;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        .mutual {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        .pending {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        .rejected {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .info-card {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+        .info-icon {
+            width: 60px;
+            background: #8e2de2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            padding: 0 0.5rem;
+        }
+        .info-content {
+            padding: 1rem;
+            flex: 1;
+        }
+        .info-title {
+            font-weight: 600;
+            margin: 0 0 0.3rem 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8e2de2;
+            margin: 0.3rem 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .top-match {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0ebfa;
+            border-radius: 8px;
+        }
+        .top-match-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+        .top-match-info {
+            flex: 1;
+        }
+        .top-match-name {
+            font-weight: 600;
+            margin: 0 0 0.2rem 0;
+        }
+        .top-match-score {
+            color: #6b24b2;
+            font-weight: 500;
+        }
+        .music-recs {
+            margin-top: 1.5rem;
+        }
+        .songs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .song-card {
+            display: flex;
+            background: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .song-cover {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .song-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .song-title {
+            font-weight: 500;
+            margin: 0 0 0.2rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-artist {
+            color: #666;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-match {
+            font-size: 0.8rem;
+            color: #8e2de2;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: #8e2de2;
+            border-bottom: 3px solid #8e2de2;
+            font-weight: 500;
+        }
+        .tab:hover:not(.active) {
+            background: #f9f9f9;
+            color: #8e2de2;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>VibeApp</h1>
+        <p class="tagline">Matching Musical Inteligente</p>
+        <div class="navbar">
+            <a href="/demo" class="nav-link">Perfil</a>
+            <a href="/demo/match" class="nav-link">Matches</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-card">
+            <div class="info-icon">📊</div>
+            <div class="info-content">
+                <h3 class="info-title">Módulo de Matching Basado en Música</h3>
+                <p>Este módulo implementa un algoritmo inteligente que analiza tus preferencias musicales y encuentra otros usuarios con gustos similares. La puntuación de compatibilidad se basa en géneros, canciones y artistas en común.</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Estadísticas de Matching</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">86%</div>
+                    <div class="stat-label">Compatibilidad máxima</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Matches totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Matches mutuos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Matches pendientes</div>
+                </div>
+            </div>
+            
+            <h3>Tu mejor match</h3>
+            <div class="top-match">
+                <div class="top-match-photo" style="background-image: url('https://via.placeholder.com/150');"></div>
+                <div class="top-match-info">
+                    <div class="top-match-name">Carlos Mendoza</div>
+                    <div class="top-match-score">86% compatible</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Tus Matches Musicales</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="all">Todos</div>
+                <div class="tab" data-tab="mutual">Mutuos</div>
+                <div class="tab" data-tab="pending">Pendientes</div>
+            </div>
+            
+            <div class="tab-content active" id="all">
+                <div class="match-list">
+                    <!-- Match 1 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Carlos Mendoza</h4>
+                            <div class="match-score">86% compatible</div>
+                            <div class="match-details">
+                                <span>4 géneros en común</span>
+                                <span>7 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                    
+                    <!-- Match 2 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Elena Rojas</h4>
+                            <div class="match-score">78% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>5 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status pending">Pendiente</div>
+                    </div>
+                    
+                    <!-- Match 3 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Daniel Torres</h4>
+                            <div class="match-score">72% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>4 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                    
+                    <!-- Match 4 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Marina Vega</h4>
+                            <div class="match-score">69% compatible</div>
+                            <div class="match-details">
+                                <span>2 géneros en común</span>
+                                <span>6 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status pending">Pendiente</div>
+                    </div>
+                    
+                    <!-- Match 5 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Alejandro Paz</h4>
+                            <div class="match-score">65% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>2 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                    
+                    <!-- Match 6 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Sofía Mora</h4>
+                            <div class="match-score">58% compatible</div>
+                            <div class="match-details">
+                                <span>2 géneros en común</span>
+                                <span>3 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status rejected">Rechazado</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="mutual">
+                <div class="match-list">
+                    <!-- Mutual Match 1 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Carlos Mendoza</h4>
+                            <div class="match-score">86% compatible</div>
+                            <div class="match-details">
+                                <span>4 géneros en común</span>
+                                <span>7 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                    
+                    <!-- Mutual Match 2 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Daniel Torres</h4>
+                            <div class="match-score">72% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>4 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                    
+                    <!-- Mutual Match 3 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Alejandro Paz</h4>
+                            <div class="match-score">65% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>2 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-status mutual">Match mutuo</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="pending">
+                <div class="match-list">
+                    <!-- Pending Match 1 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Elena Rojas</h4>
+                            <div class="match-score">78% compatible</div>
+                            <div class="match-details">
+                                <span>3 géneros en común</span>
+                                <span>5 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status pending">Pendiente</div>
+                    </div>
+                    
+                    <!-- Pending Match 2 -->
+                    <div class="match-card">
+                        <div class="match-photo" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="match-info">
+                            <h4 class="match-name">Marina Vega</h4>
+                            <div class="match-score">69% compatible</div>
+                            <div class="match-details">
+                                <span>2 géneros en común</span>
+                                <span>6 canciones</span>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="match-btn accept-btn">Aceptar</button>
+                            <button class="match-btn reject-btn">Rechazar</button>
+                        </div>
+                        <div class="match-status pending">Pendiente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Cómo Funciona el Algoritmo</h2>
+            
+            <h3>Factores de compatibilidad</h3>
+            <ul>
+                <li><strong>Géneros musicales (40%):</strong> Se comparan los géneros favoritos usando similaridad de Jaccard.</li>
+                <li><strong>Canciones favoritas (40%):</strong> Se analiza la intersección de canciones favoritas.</li>
+                <li><strong>Artistas (20%):</strong> Se extraen artistas de las canciones para encontrar preferencias similares.</li>
+            </ul>
+            
+            <h3>Umbrales de compatibilidad</h3>
+            <ul>
+                <li><strong>Alta compatibilidad:</strong> 75% o más</li>
+                <li><strong>Compatibilidad media:</strong> Entre 50% y 75%</li>
+                <li><strong>Compatibilidad baja:</strong> Entre 25% y 50%</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Descubrimiento Musical</h2>
+            <p>Basado en tus matches, te recomendamos estas canciones:</p>
+            
+            <div class="music-recs">
+                <div class="songs-grid">
+                    <div class="song-card">
+                        <div class="song-cover" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="song-info">
+                            <div class="song-title">Levitating</div>
+                            <div class="song-artist">Dua Lipa</div>
+                            <div class="song-match">De match con 86% de compatibilidad</div>
+                        </div>
+                    </div>
+                    <div class="song-card">
+                        <div class="song-cover" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="song-info">
+                            <div class="song-title">Blinding Lights</div>
+                            <div class="song-artist">The Weeknd</div>
+                            <div class="song-match">De match con 78% de compatibilidad</div>
+                        </div>
+                    </div>
+                    <div class="song-card">
+                        <div class="song-cover" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="song-info">
+                            <div class="song-title">Heat Waves</div>
+                            <div class="song-artist">Glass Animals</div>
+                            <div class="song-match">De match con 72% de compatibilidad</div>
+                        </div>
+                    </div>
+                    <div class="song-card">
+                        <div class="song-cover" style="background-image: url('https://via.placeholder.com/300');"></div>
+                        <div class="song-info">
+                            <div class="song-title">good 4 u</div>
+                            <div class="song-artist">Olivia Rodrigo</div>
+                            <div class="song-match">De match con 69% de compatibilidad</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all content sections
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show content for active tab
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Match interaction functionality (demo only)
+        document.querySelectorAll('.accept-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.match-card');
+                const statusEl = card.querySelector('.match-status');
+                statusEl.textContent = 'Match mutuo';
+                statusEl.className = 'match-status mutual';
+                
+                // Hide action buttons
+                card.querySelector('.match-actions').style.display = 'none';
+                
+                // Show alert
+                alert('¡Has aceptado el match! Si el otro usuario también acepta, podrán conectar.');
+            });
+        });
+        
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.match-card');
+                const statusEl = card.querySelector('.match-status');
+                statusEl.textContent = 'Rechazado';
+                statusEl.className = 'match-status rejected';
+                
+                // Hide action buttons
+                card.querySelector('.match-actions').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 

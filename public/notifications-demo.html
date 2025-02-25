@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeApp - Centro de Notificaciones</title>
+    <style>
+        :root {
+            --primary-color: #8e2de2;
+            --primary-gradient: linear-gradient(135deg, #8e2de2, #4a00e0);
+            --secondary-color: #4a00e0;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #f5f5f5;
+            --white: #fff;
+            --border-color: #eee;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: var(--primary-gradient);
+            color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .navbar {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .badge {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #f9f9f9;
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .notification.unread {
+            border-left-color: var(--primary-color);
+            background-color: #f9f6ff;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        
+        .notification-message {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        
+        .notification-time {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .notification-btn:hover {
+            background: #f0ebfa;
+        }
+        
+        .notification-type {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            background: #f0ebfa;
+            color: var(--primary-color);
+        }
+        
+        .notification-type.match {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .notification-type.message {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .notification-type.like {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .notification-type.system {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+        
+        .preferences {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .preference-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .preference-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .preference-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            background: var(--primary-gradient);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: #f0ebfa;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .preferences {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>VibeApp</h1>
+        <p class="tagline">Centro de Notificaciones</p>
+        <div class="navbar">
+            <a href="/demo" class="nav-link">Perfil</a>
+            <a href="/demo/match" class="nav-link">Matches</a>
+            <a href="/demo/swipe" class="nav-link">Descubrir</a>
+            <a href="/demo/chat" class="nav-link">Mensajes</a>
+            <a href="/demo/notifications" class="nav-link">Notificaciones</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <h2>Tus Notificaciones <span class="badge">5 nuevas</span></h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="all">Todas</div>
+                <div class="tab" data-tab="unread">No leídas</div>
+                <div class="tab" data-tab="matches">Matches</div>
+                <div class="tab" data-tab="messages">Mensajes</div>
+            </div>
+            
+            <div class="tab-content active" id="all">
+                <div class="notification-list">
+                    <!-- Notificación de match -->
+                    <div class="notification unread">
+                        <div class="notification-icon">❤️</div>
+                        <div class="notification-content">
+                            <div class="notification-title">¡Nuevo Match!</div>
+                            <div class="notification-message">Has hecho match con Carlos Mendoza</div>
+                            <div class="notification-time">Hace 5 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Ver perfil</button>
+                                <button class="notification-btn">Enviar mensaje</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type match">Match</div>
+                    </div>
+                    
+                    <!-- Notificación de mensaje -->
+                    <div class="notification unread">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo mensaje</div>
+                            <div class="notification-message">Elena Rojas: Hola! Me encanta tu playlist de indie rock...</div>
+                            <div class="notification-time">Hace 20 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Responder</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type message">Mensaje</div>
+                    </div>
+                    
+                    <!-- Notificación de like -->
+                    <div class="notification unread">
+                        <div class="notification-icon">👍</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo Like</div>
+                            <div class="notification-message">A Daniel Torres le gustó tu perfil</div>
+                            <div class="notification-time">Hace 1 hora</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Ver perfil</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type like">Like</div>
+                    </div>
+                    
+                    <!-- Notificación de mensaje -->
+                    <div class="notification">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo mensaje</div>
+                            <div class="notification-message">Carlos Mendoza: ¿Has escuchado el nuevo álbum de Arctic Monkeys?</div>
+                            <div class="notification-time">Ayer, 18:45</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Responder</button>
+                            </div>
+                        </div>
+                        <div class="notification-type message">Mensaje</div>
+                    </div>
+                    
+                    <!-- Notificación del sistema -->
+                    <div class="notification">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Actualización de la aplicación</div>
+                            <div class="notification-message">Hemos añadido nuevas funciones a VibeApp. ¡Descubre las novedades!</div>
+                            <div class="notification-time">Hace 2 días</div>
+                        </div>
+                        <div class="notification-type system">Sistema</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="unread">
+                <div class="notification-list">
+                    <!-- Notificación de match -->
+                    <div class="notification unread">
+                        <div class="notification-icon">❤️</div>
+                        <div class="notification-content">
+                            <div class="notification-title">¡Nuevo Match!</div>
+                            <div class="notification-message">Has hecho match con Carlos Mendoza</div>
+                            <div class="notification-time">Hace 5 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Ver perfil</button>
+                                <button class="notification-btn">Enviar mensaje</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type match">Match</div>
+                    </div>
+                    
+                    <!-- Notificación de mensaje -->
+                    <div class="notification unread">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo mensaje</div>
+                            <div class="notification-message">Elena Rojas: Hola! Me encanta tu playlist de indie rock...</div>
+                            <div class="notification-time">Hace 20 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Responder</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type message">Mensaje</div>
+                    </div>
+                    
+                    <!-- Notificación de like -->
+                    <div class="notification unread">
+                        <div class="notification-icon">👍</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo Like</div>
+                            <div class="notification-message">A Daniel Torres le gustó tu perfil</div>
+                            <div class="notification-time">Hace 1 hora</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Ver perfil</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type like">Like</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="matches">
+                <div class="notification-list">
+                    <!-- Notificación de match -->
+                    <div class="notification unread">
+                        <div class="notification-icon">❤️</div>
+                        <div class="notification-content">
+                            <div class="notification-title">¡Nuevo Match!</div>
+                            <div class="notification-message">Has hecho match con Carlos Mendoza</div>
+                            <div class="notification-time">Hace 5 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Ver perfil</button>
+                                <button class="notification-btn">Enviar mensaje</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type match">Match</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="messages">
+                <div class="notification-list">
+                    <!-- Notificación de mensaje -->
+                    <div class="notification unread">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo mensaje</div>
+                            <div class="notification-message">Elena Rojas: Hola! Me encanta tu playlist de indie rock...</div>
+                            <div class="notification-time">Hace 20 minutos</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Responder</button>
+                                <button class="notification-btn">Marcar como leída</button>
+                            </div>
+                        </div>
+                        <div class="notification-type message">Mensaje</div>
+                    </div>
+                    
+                    <!-- Notificación de mensaje -->
+                    <div class="notification">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nuevo mensaje</div>
+                            <div class="notification-message">Carlos Mendoza: ¿Has escuchado el nuevo álbum de Arctic Monkeys?</div>
+                            <div class="notification-time">Ayer, 18:45</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn">Responder</button>
+                            </div>
+                        </div>
+                        <div class="notification-type message">Mensaje</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-outline">Marcar todas como leídas</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Preferencias de Notificaciones</h2>
+            
+            <div class="preferences">
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones Push
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe notificaciones en tu dispositivo cuando la app está cerrada.
+                    </div>
+                </div>
+                
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones por Email
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe un resumen diario de tus notificaciones por correo electrónico.
+                    </div>
+                </div>
+                
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones de Matches
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe notificaciones cuando hagas match con alguien.
+                    </div>
+                </div>
+                
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones de Mensajes
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe notificaciones cuando alguien te envíe un mensaje.
+                    </div>
+                </div>
+                
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones de Likes
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe notificaciones cuando alguien le dé like a tu perfil.
+                    </div>
+                </div>
+                
+                <div class="preference-card">
+                    <div class="preference-title">
+                        Notificaciones del Sistema
+                        <label class="toggle">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-description">
+                        Recibe notificaciones sobre actualizaciones y novedades de la app.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn">Guardar Preferencias</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Inicializar Socket.IO
+        let socket;
+        try {
+            // En un entorno real, se usaría el token JWT del usuario
+            const demoToken = 'demo_token';
+            socket = io({
+                query: {
+                    token: demoToken
+                }
+            });
+            
+            // Escuchar eventos de notificación
+            socket.on('notification', function(data) {
+                console.log('Nueva notificación recibida:', data);
+                // Aquí se añadiría la notificación a la interfaz
+                addNotification(data);
+            });
+            
+            socket.on('connect', function() {
+                console.log('Conectado a Socket.IO');
+            });
+            
+            socket.on('disconnect', function() {
+                console.log('Desconexión de Socket.IO');
+            });
+            
+            socket.on('error', function(error) {
+                console.error('Error de Socket.IO:', error);
+            });
+        } catch (error) {
+            console.error('Error al inicializar Socket.IO:', error);
+        }
+        
+        // Función para añadir una nueva notificación a la interfaz
+        function addNotification(notification) {
+            const notificationsList = document.querySelector('#all-notifications .notifications-list');
+            const notificationElement = document.createElement('div');
+            notificationElement.className = 'notification unread';
+            
+            notificationElement.innerHTML = `
+                <div class="notification-icon ${notification.type}">
+                    <i class="icon-${notification.type}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-header">
+                        <h3>${notification.title}</h3>
+                        <span class="notification-time">Ahora</span>
+                    </div>
+                    <p>${notification.message}</p>
+                    <div class="notification-actions">
+                        <button class="notification-btn">Marcar como leída</button>
+                        <button class="notification-btn secondary">Ver detalles</button>
+                    </div>
+                </div>
+            `;
+            
+            // Añadir al principio de la lista
+            notificationsList.insertBefore(notificationElement, notificationsList.firstChild);
+            
+            // Actualizar contador
+            const badge = document.querySelector('.badge');
+            const currentCount = badge.textContent === 'Ninguna nueva' ? 0 : parseInt(badge.textContent);
+            badge.textContent = (currentCount + 1) + ' nuevas';
+            
+            // Añadir evento al botón de marcar como leída
+            const readBtn = notificationElement.querySelector('.notification-btn');
+            readBtn.addEventListener('click', function() {
+                notificationElement.classList.remove('unread');
+                readBtn.remove();
+                
+                // Actualizar contador
+                const newCount = parseInt(badge.textContent) - 1;
+                badge.textContent = newCount > 0 ? newCount + ' nuevas' : 'Ninguna nueva';
+            });
+        }
+
+        // Funcionalidad de pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Quitar clase activa de todas las pestañas
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Añadir clase activa a la pestaña clickeada
+                tab.classList.add('active');
+                
+                // Ocultar todos los contenidos
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Mostrar el contenido correspondiente
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Marcar notificaciones como leídas
+        document.querySelectorAll('.notification-btn').forEach(btn => {
+            if (btn.textContent === 'Marcar como leída') {
+                btn.addEventListener('click', function() {
+                    const notification = this.closest('.notification');
+                    notification.classList.remove('unread');
+                    this.remove(); // Eliminar el botón después de usarlo
+                    
+                    // Actualizar contador de notificaciones
+                    const badge = document.querySelector('.badge');
+                    const count = parseInt(badge.textContent);
+                    if (count > 1) {
+                        badge.textContent = (count - 1) + ' nuevas';
+                    } else {
+                        badge.textContent = 'Ninguna nueva';
+                    }
+                });
+            }
+        });
+        
+        // Marcar todas como leídas
+        document.querySelector('.btn-outline').addEventListener('click', function() {
+            document.querySelectorAll('.notification.unread').forEach(notification => {
+                notification.classList.remove('unread');
+                
+                // Eliminar botones de "Marcar como leída"
+                notification.querySelectorAll('.notification-btn').forEach(btn => {
+                    if (btn.textContent === 'Marcar como leída') {
+                        btn.remove();
+                    }
+                });
+            });
+            
+            // Actualizar contador
+            document.querySelector('.badge').textContent = 'Ninguna nueva';
+        });
+        
+        // Simulación de toggles de preferencias
+        document.querySelectorAll('.toggle input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const card = this.closest('.preference-card');
+                const title = card.querySelector('.preference-title').textContent.trim().split('\n')[0];
+                console.log(`Preferencia "${title}" ${this.checked ? 'activada' : 'desactivada'}`);
+            });
+        });
+        
+        // Guardar preferencias
+        document.querySelector('.btn').addEventListener('click', function() {
+            const preferences = {};
+            document.querySelectorAll('.toggle input').forEach(toggle => {
+                const card = toggle.closest('.preference-card');
+                const title = card.querySelector('.preference-title').textContent.trim().split('\n')[0];
+                preferences[title] = toggle.checked;
+            });
+            
+            console.log('Preferencias guardadas:', preferences);
+            alert('Preferencias guardadas correctamente');
+        });
+    </script>
+</body>
+</html> 

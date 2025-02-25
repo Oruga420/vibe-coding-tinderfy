@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeApp - Descubre Matches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8e2de2;
+            --secondary-color: #4a00e0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2d3436;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --text-color: #333;
+            --light-text: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.3rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .swipe-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-container {
+            width: 100%;
+            max-width: 380px;
+            height: 70vh;
+            position: relative;
+            perspective: 1000px;
+        }
+        
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            cursor: grab;
+            transition: transform 0.3s ease-out;
+        }
+        
+        .card-photo {
+            width: 100%;
+            height: 65%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .photo-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .music-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .music-icon {
+            font-size: 1rem;
+        }
+        
+        .card-info {
+            padding: 1rem;
+            height: 35%;
+            overflow: auto;
+        }
+        
+        .user-name-age {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-location {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .user-bio {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .music-preferences {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .genre-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .genre-tag {
+            background: #f0ebfa;
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        
+        .song-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+        }
+        
+        .song-cover {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        
+        .song-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .song-title {
+            font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .song-artist {
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #777;
+        }
+        
+        .action-buttons {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            z-index: 100;
+        }
+        
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dislike-btn {
+            background: white;
+            color: var(--danger-color);
+        }
+        
+        .like-btn {
+            background: white;
+            color: var(--success-color);
+        }
+        
+        .match-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .match-notification.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .match-title {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .match-subtitle {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .profile-photos {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid white;
+        }
+        
+        .match-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            background: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .match-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .no-more-profiles {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .swipe-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .swipe-left {
+            left: 20px;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+        }
+        
+        .swipe-right {
+            right: 20px;
+            background: rgba(40, 167, 69, 0.8);
+            color: white;
+        }
+        
+        .card.swiping-left .swipe-left,
+        .card.swiping-right .swipe-right {
+            opacity: 1;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .card-container {
+                height: 80vh;
+            }
+            
+            .action-buttons {
+                bottom: 20px;
+            }
+            
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .card-container {
+                height: 75vh;
+            }
+            
+            .card-photo {
+                height: 60%;
+            }
+            
+            .card-info {
+                height: 40%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="app-logo">VibeApp</div>
+        <div class="navbar">
+            <a href="/demo" class="nav-link">Perfil</a>
+            <a href="/demo/match" class="nav-link">Matches</a>
+            <a href="/demo/swipe" class="nav-link active">Descubrir</a>
+        </div>
+    </header>
+
+    <div class="swipe-container">
+        <div class="card-container" id="cardsContainer">
+            <!-- Las tarjetas se generarán dinámicamente con JavaScript -->
+        </div>
+        
+        <div class="action-buttons">
+            <div class="action-btn dislike-btn" id="dislikeBtn">✕</div>
+            <div class="action-btn like-btn" id="likeBtn">♥</div>
+        </div>
+    </div>
+    
+    <div class="match-notification" id="matchNotification">
+        <h2 class="match-title">¡Es un Match!</h2>
+        <p class="match-subtitle">Ambos tienen gustos musicales similares</p>
+        <div class="profile-photos">
+            <div class="profile-photo" style="background-image: url('https://via.placeholder.com/150');"></div>
+            <div class="profile-photo" style="background-image: url('https://via.placeholder.com/150');"></div>
+        </div>
+        <button class="match-btn" id="continueBtn">Continuar</button>
+    </div>
+
+    <script>
+        // Variables del sistema
+        const API_URL = '/api';
+        const DEMO_MODE = true; // Activar para usar datos de ejemplo cuando la API no esté disponible
+        
+        // Datos de ejemplo para la demo
+        const sampleProfiles = [
+            {
+                id: 1,
+                name: "Laura",
+                age: 26,
+                location: "Madrid",
+                bio: "Melómana empedernida. Me encanta descubrir nueva música y compartir mis hallazgos.",
+                photos: ["https://via.placeholder.com/500/88c/fff?text=Laura+1", "https://via.placeholder.com/500/c88/fff?text=Laura+2"],
+                musicPreferences: {
+                    genres: ["Indie", "Alternative Rock", "Pop", "Jazz"],
+                    songs: [
+                        { title: "Yesterday", artist: "The Beatles", cover: "https://via.placeholder.com/50/f8c/fff?text=B" },
+                        { title: "Bohemian Rhapsody", artist: "Queen", cover: "https://via.placeholder.com/50/8cf/fff?text=Q" }
+                    ]
+                },
+                compatibilityScore: 85
+            },
+            {
+                id: 2,
+                name: "Carlos",
+                age: 30,
+                location: "Barcelona",
+                bio: "Guitarrista amateur y fanático de los conciertos en vivo. Busco a alguien para compartir aventuras musicales.",
+                photos: ["https://via.placeholder.com/500/8cc/fff?text=Carlos+1", "https://via.placeholder.com/500/cc8/fff?text=Carlos+2"],
+                musicPreferences: {
+                    genres: ["Rock", "Blues", "Metal", "Funk"],
+                    songs: [
+                        { title: "Stairway to Heaven", artist: "Led Zeppelin", cover: "https://via.placeholder.com/50/f8f/fff?text=LZ" },
+                        { title: "Sweet Child O' Mine", artist: "Guns N' Roses", cover: "https://via.placeholder.com/50/8ff/fff?text=GR" }
+                    ]
+                },
+                compatibilityScore: 72
+            },
+            {
+                id: 3,
+                name: "Elena",
+                age: 24,
+                location: "Valencia",
+                bio: "Pianista clásica con gusto por la música electrónica. Me encanta explorar fusiones de géneros.",
+                photos: ["https://via.placeholder.com/500/c8c/fff?text=Elena+1", "https://via.placeholder.com/500/8c8/fff?text=Elena+2"],
+                musicPreferences: {
+                    genres: ["Classical", "Electronic", "Ambient", "Jazz"],
+                    songs: [
+                        { title: "Clair de Lune", artist: "Claude Debussy", cover: "https://via.placeholder.com/50/ff8/fff?text=CD" },
+                        { title: "Strobe", artist: "Deadmau5", cover: "https://via.placeholder.com/50/8ff/fff?text=DM" }
+                    ]
+                },
+                compatibilityScore: 78
+            },
+            {
+                id: 4,
+                name: "Miguel",
+                age: 28,
+                location: "Sevilla",
+                bio: "DJ en mis ratos libres y amante del hip hop. Siempre explorando nuevos ritmos y colaboraciones.",
+                photos: ["https://via.placeholder.com/500/88c/fff?text=Miguel+1", "https://via.placeholder.com/500/cc8/fff?text=Miguel+2"],
+                musicPreferences: {
+                    genres: ["Hip Hop", "R&B", "Electronic", "Reggaeton"],
+                    songs: [
+                        { title: "Lose Yourself", artist: "Eminem", cover: "https://via.placeholder.com/50/c8f/fff?text=EM" },
+                        { title: "Sicko Mode", artist: "Travis Scott", cover: "https://via.placeholder.com/50/fcf/fff?text=TS" }
+                    ]
+                },
+                compatibilityScore: 65
+            },
+            {
+                id: 5,
+                name: "Ana",
+                age: 25,
+                location: "Bilbao",
+                bio: "Cantante de jazz y soul. Me pierdo en las melodías y busco alguien que aprecie la música como forma de vida.",
+                photos: ["https://via.placeholder.com/500/ccc/fff?text=Ana+1", "https://via.placeholder.com/500/8cc/fff?text=Ana+2"],
+                musicPreferences: {
+                    genres: ["Jazz", "Soul", "Blues", "R&B"],
+                    songs: [
+                        { title: "What a Wonderful World", artist: "Louis Armstrong", cover: "https://via.placeholder.com/50/ff8/fff?text=LA" },
+                        { title: "Feeling Good", artist: "Nina Simone", cover: "https://via.placeholder.com/50/f8f/fff?text=NS" }
+                    ]
+                },
+                compatibilityScore: 88
+            }
+        ];
+
+        // Elementos del DOM
+        const cardsContainer = document.getElementById('cardsContainer');
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const matchNotification = document.getElementById('matchNotification');
+        const continueBtn = document.getElementById('continueBtn');
+
+        // Variables de estado
+        let currentIndex = 0;
+        let currentProfile = null;
+        let profiles = [];
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let initialRotation = 0;
+        let currentCard = null;
+        let authToken = null; // Token de autenticación para API
+
+        // Función para inicializar la app
+        function initApp() {
+            // En una app real, aquí verificaríamos si el usuario está autenticado
+            // y obtendríamos su token
+            
+            // Para demo, simulamos una autenticación
+            if (DEMO_MODE) {
+                authToken = 'demo_token';
+                loadProfiles();
+                setupEventListeners();
+            } else {
+                checkAuthStatus()
+                    .then(token => {
+                        authToken = token;
+                        loadProfiles();
+                        setupEventListeners();
+                    })
+                    .catch(error => {
+                        console.error('Error de autenticación:', error);
+                        showAuthError();
+                    });
+            }
+        }
+
+        // Verificar estado de autenticación (para app real)
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('No autenticado');
+                }
+                
+                const data = await response.json();
+                return localStorage.getItem('token');
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Mostrar error de autenticación
+        function showAuthError() {
+            cardsContainer.innerHTML = `
+                <div class="no-more-profiles">
+                    <h3>Error de autenticación</h3>
+                    <p>Debes iniciar sesión para acceder a esta funcionalidad.</p>
+                    <button onclick="window.location.href='/demo'">Ir a inicio de sesión</button>
+                </div>
+            `;
+        }
+
+        // Cargar perfiles desde la API
+        async function loadProfiles() {
+            try {
+                // Intentar obtener perfiles de la API
+                if (!DEMO_MODE) {
+                    const response = await fetch(`${API_URL}/swipe/profiles?limit=10`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Error al cargar perfiles');
+                    }
+                    
+                    const data = await response.json();
+                    profiles = data.data;
+                } else {
+                    // Usar datos de ejemplo en modo demo
+                    profiles = [...sampleProfiles];
+                }
+                
+                if (profiles.length > 0) {
+                    currentIndex = 0;
+                    renderProfile(profiles[currentIndex]);
+                } else {
+                    showNoMoreProfiles();
+                }
+            } catch (error) {
+                console.error('Error cargando perfiles:', error);
+                
+                // Usar datos de ejemplo como fallback
+                profiles = [...sampleProfiles];
+                
+                if (profiles.length > 0) {
+                    currentIndex = 0;
+                    renderProfile(profiles[currentIndex]);
+                } else {
+                    showNoMoreProfiles();
+                }
+            }
+        }
+
+        // Mostrar mensaje cuando no hay más perfiles
+        function showNoMoreProfiles() {
+            cardsContainer.innerHTML = `
+                <div class="no-more-profiles">
+                    <h3>No hay más perfiles por ahora</h3>
+                    <p>¡Vuelve más tarde para descubrir nuevos matches!</p>
+                    <button onclick="loadProfiles()" class="match-btn">Actualizar</button>
+                </div>
+            `;
+        }
+
+        // Renderizar un perfil en el contenedor de tarjetas
+        function renderProfile(profile) {
+            currentProfile = profile;
+            
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.setAttribute('data-id', profile.id);
+            
+            // Añadir indicadores de swipe
+            const swipeLeft = document.createElement('div');
+            swipeLeft.classList.add('swipe-indicator', 'swipe-left');
+            swipeLeft.textContent = '✕';
+            
+            const swipeRight = document.createElement('div');
+            swipeRight.classList.add('swipe-indicator', 'swipe-right');
+            swipeRight.textContent = '♥';
+            
+            // Asegurar que hay al menos una foto
+            const photoUrl = profile.photos && profile.photos.length > 0 
+                ? profile.photos[0] 
+                : 'https://via.placeholder.com/500/ccc/fff?text=No+Photo';
+            
+            // Foto principal del perfil
+            const photoHTML = `
+                <div class="card-photo" style="background-image: url('${photoUrl}')">
+                    <div class="photo-count">${profile.photos ? profile.photos.length : 0} fotos</div>
+                    <div class="music-badge">
+                        <span class="music-icon">🎵</span>
+                        <span>${profile.compatibilityScore}% compatible</span>
+                    </div>
+                </div>
+            `;
+            
+            // Información del perfil
+            const infoHTML = `
+                <div class="card-info">
+                    <div class="user-name-age">
+                        <span>${profile.name}, ${profile.age || '?'}</span>
+                    </div>
+                    <div class="user-location">
+                        <span>📍</span> ${profile.location || 'Sin ubicación'}
+                    </div>
+                    <div class="user-bio">${profile.bio || 'Sin biografía'}</div>
+                    
+                    <div class="music-preferences">
+                        <div class="section-title">Géneros favoritos</div>
+                        <div class="genre-tags">
+                            ${profile.musicPreferences && profile.musicPreferences.genres 
+                                ? profile.musicPreferences.genres.map(genre => 
+                                    `<span class="genre-tag">${genre}</span>`
+                                ).join('') 
+                                : '<span class="genre-tag">Sin géneros</span>'}
+                        </div>
+                        
+                        <div class="section-title" style="margin-top: 0.5rem;">Canciones favoritas</div>
+                        ${profile.musicPreferences && profile.musicPreferences.songs && profile.musicPreferences.songs.length 
+                            ? profile.musicPreferences.songs.map(song => `
+                                <div class="song-item">
+                                    <div class="song-cover" style="background-image: url('${song.cover || 'https://via.placeholder.com/50/ccc/fff?text=Song'}')"></div>
+                                    <div class="song-info">
+                                        <div class="song-title">${song.title}</div>
+                                        <div class="song-artist">${song.artist}</div>
+                                    </div>
+                                </div>
+                            `).join('') 
+                            : '<div>No hay canciones favoritas</div>'}
+                    </div>
+                </div>
+            `;
+            
+            card.innerHTML = photoHTML + infoHTML;
+            card.appendChild(swipeLeft);
+            card.appendChild(swipeRight);
+            
+            // Añadir la tarjeta al contenedor
+            cardsContainer.appendChild(card);
+            currentCard = card;
+            
+            // Configurar eventos de arrastre para esta tarjeta
+            setupDragEvents(card);
+        }
+
+        // Configurar eventos para poder arrastrar las tarjetas
+        function setupDragEvents(card) {
+            card.addEventListener('mousedown', startDrag);
+            card.addEventListener('touchstart', startDrag, { passive: true });
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        // Iniciar arrastre
+        function startDrag(e) {
+            if (!currentCard) return;
+            
+            isDragging = true;
+            
+            // Obtener posición inicial del puntero/toque
+            startX = e.clientX || e.touches[0].clientX;
+            startY = e.clientY || e.touches[0].clientY;
+            
+            // Registrar tiempo para calcular velocidad de swipe
+            initialRotation = 0;
+            
+            // Cambiar cursor
+            currentCard.style.cursor = 'grabbing';
+            
+            // Prevenir comportamiento por defecto solo para eventos touch
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+            }
+        }
+
+        // Durante el arrastre
+        function drag(e) {
+            if (!isDragging || !currentCard) return;
+            
+            // Prevenir scroll durante el arrastre en móviles
+            e.preventDefault();
+            
+            // Calcular cuánto se ha movido el puntero/toque
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            currentX = clientX - startX;
+            currentY = clientY - startY;
+            
+            // Rotación basada en el desplazamiento horizontal
+            const rotation = currentX * 0.1; // Grados de rotación
+            
+            // Aplicar transformación
+            currentCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotation}deg)`;
+            
+            // Mostrar indicador de swipe
+            if (currentX > 80) {
+                currentCard.classList.add('swiping-right');
+                currentCard.classList.remove('swiping-left');
+            } else if (currentX < -80) {
+                currentCard.classList.add('swiping-left');
+                currentCard.classList.remove('swiping-right');
+            } else {
+                currentCard.classList.remove('swiping-right', 'swiping-left');
+            }
+        }
+
+        // Finalizar arrastre
+        function endDrag() {
+            if (!isDragging || !currentCard) return;
+            
+            isDragging = false;
+            
+            // Restablecer cursor
+            currentCard.style.cursor = 'grab';
+            
+            // Determinar si es un swipe basado en la posición final
+            const threshold = window.innerWidth * 0.2; // 20% del ancho de pantalla
+            
+            if (currentX > threshold) {
+                // Swipe a la derecha (like)
+                swipeRight();
+            } else if (currentX < -threshold) {
+                // Swipe a la izquierda (dislike)
+                swipeLeft();
+            } else {
+                // No es un swipe, volver a la posición original
+                resetCardPosition();
+            }
+            
+            // Limpiar clases de swipe
+            currentCard.classList.remove('swiping-right', 'swiping-left');
+        }
+
+        // Restaurar posición de la tarjeta
+        function resetCardPosition() {
+            if (!currentCard) return;
+            
+            currentCard.style.transition = 'transform 0.3s ease';
+            currentCard.style.transform = 'translate(0, 0) rotate(0deg)';
+            
+            // Eliminar transición después de que termine
+            setTimeout(() => {
+                if (currentCard) {
+                    currentCard.style.transition = '';
+                }
+            }, 300);
+        }
+
+        // Swipe a la derecha (like)
+        function swipeRight() {
+            if (!currentCard) return;
+            
+            currentCard.style.transition = 'transform 0.5s ease';
+            currentCard.style.transform = `translate(${window.innerWidth * 1.5}px, ${currentY}px) rotate(30deg)`;
+            
+            // Enviar acción de like a la API
+            if (!DEMO_MODE && currentProfile) {
+                sendSwipeAction(currentProfile.id, 'like');
+            } else {
+                // En modo demo, simulamos un 50% de probabilidad de match
+                const isMatch = Math.random() > 0.5;
+                setTimeout(() => {
+                    processSwipeResult('like', isMatch);
+                }, 500);
+            }
+        }
+
+        // Swipe a la izquierda (dislike)
+        function swipeLeft() {
+            if (!currentCard) return;
+            
+            currentCard.style.transition = 'transform 0.5s ease';
+            currentCard.style.transform = `translate(-${window.innerWidth * 1.5}px, ${currentY}px) rotate(-30deg)`;
+            
+            // Enviar acción de dislike a la API
+            if (!DEMO_MODE && currentProfile) {
+                sendSwipeAction(currentProfile.id, 'dislike');
+            } else {
+                setTimeout(() => {
+                    processSwipeResult('dislike', false);
+                }, 500);
+            }
+        }
+
+        // Enviar acción de swipe a la API
+        async function sendSwipeAction(targetUserId, action) {
+            try {
+                const response = await fetch(`${API_URL}/swipe/action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        targetUserId,
+                        action
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al enviar acción de swipe');
+                }
+                
+                const data = await response.json();
+                
+                // Procesar resultado
+                processSwipeResult(action, data.data.isMatch);
+            } catch (error) {
+                console.error('Error en swipe action:', error);
+                // Continuar con el siguiente perfil en caso de error
+                processSwipeResult(action, false);
+            }
+        }
+
+        // Procesar resultado del swipe
+        function processSwipeResult(action, isMatch) {
+            // Eliminar tarjeta actual
+            if (currentCard && currentCard.parentNode) {
+                currentCard.parentNode.removeChild(currentCard);
+                currentCard = null;
+            }
+            
+            if (isMatch && action === 'like') {
+                // Mostrar notificación de match
+                showMatchNotification();
+            } else {
+                // Avanzar al siguiente perfil
+                currentIndex++;
+                if (currentIndex < profiles.length) {
+                    renderProfile(profiles[currentIndex]);
+                } else {
+                    showNoMoreProfiles();
+                }
+            }
+        }
+
+        // Mostrar notificación de match
+        function showMatchNotification() {
+            matchNotification.classList.add('show');
+            
+            // Actualizar fotos de los usuarios en la notificación
+            const profilePhotos = matchNotification.querySelectorAll('.profile-photo');
+            if (profilePhotos.length >= 2 && currentProfile && currentProfile.photos && currentProfile.photos.length) {
+                profilePhotos[1].style.backgroundImage = `url('${currentProfile.photos[0]}')`;
+            }
+        }
+
+        // Configurar eventos de botones y otros elementos
+        function setupEventListeners() {
+            // Botón de like
+            likeBtn.addEventListener('click', () => {
+                if (currentCard) swipeRight();
+            });
+            
+            // Botón de dislike
+            dislikeBtn.addEventListener('click', () => {
+                if (currentCard) swipeLeft();
+            });
+            
+            // Botón continuar en notificación de match
+            continueBtn.addEventListener('click', () => {
+                matchNotification.classList.remove('show');
+                
+                // Avanzar al siguiente perfil
+                currentIndex++;
+                if (currentIndex < profiles.length) {
+                    renderProfile(profiles[currentIndex]);
+                } else {
+                    showNoMoreProfiles();
+                }
+            });
+            
+            // Eventos de teclado (flechas izquierda/derecha)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    if (currentCard) swipeLeft();
+                } else if (e.key === 'ArrowRight') {
+                    if (currentCard) swipeRight();
+                }
+            });
+        }
+
+        // Iniciar la aplicación cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html> 

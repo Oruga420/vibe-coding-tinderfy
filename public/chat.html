@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeApp - Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8e2de2;
+            --secondary-color: #4a00e0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2d3436;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --self-msg: #e6f8f1;
+            --other-msg: #f0ebfa;
+            --border-color: #eaeaea;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .app-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.3rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: white;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .search-container {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(142, 45, 226, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .conversation-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .conversation-item:hover, .conversation-item.active {
+            background: #f0ebfa;
+        }
+        
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin-right: 0.8rem;
+            flex-shrink: 0;
+        }
+        
+        .conversation-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .conversation-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .conversation-time {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .conversation-message {
+            font-size: 0.85rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+        }
+        
+        .unread-count {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        
+        .compatibility-badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            background: #f0ebfa;
+            color: var(--primary-color);
+            border-radius: 10px;
+            margin-left: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            z-index: 5;
+        }
+        
+        .chat-header-info {
+            flex: 1;
+            margin-left: 1rem;
+        }
+        
+        .chat-header-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .chat-header-status {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .typing-indicator {
+            display: none;
+            font-style: italic;
+            color: var(--primary-color);
+            animation: fadeInOut 1.5s infinite;
+        }
+        
+        .typing-indicator.show {
+            display: block;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        .chat-header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .header-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0ebfa;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: var(--light-bg);
+        }
+        
+        .message-date {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .message-date span {
+            background: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .message {
+            display: flex;
+            max-width: 75%;
+        }
+        
+        .message-self {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message-other {
+            align-self: flex-start;
+        }
+        
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 0 0.5rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-content {
+            background: var(--other-msg);
+            padding: 0.8rem;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .message-self .message-content {
+            background: var(--self-msg);
+        }
+        
+        .message-text {
+            margin-bottom: 0.4rem;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: #888;
+            text-align: right;
+        }
+        
+        .message-self .message-time {
+            text-align: right;
+        }
+        
+        .message-other .message-time {
+            text-align: right;
+        }
+        
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background: white;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 0.8rem;
+        }
+        
+        .input-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0ebfa;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .input-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .message-input-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .message-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            outline: none;
+            font-size: 0.9rem;
+            resize: none;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .message-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(142, 45, 226, 0.1);
+        }
+        
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-btn:hover {
+            background: #7d21d1;
+            transform: scale(1.05);
+        }
+        
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 2rem;
+            text-align: center;
+            color: #888;
+        }
+        
+        .empty-chat i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-chat h3 {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .no-conversation-selected {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            background: #f5f7fa;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .no-conversation-content {
+            max-width: 400px;
+        }
+        
+        .no-conversation-content i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        
+        .no-conversation-content h3 {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .no-conversation-content p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        .start-conversation-btn {
+            padding: 0.7rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .start-conversation-btn:hover {
+            background: #7d21d1;
+            transform: translateY(-2px);
+        }
+        
+        .preview-upload {
+            display: flex;
+            align-items: center;
+            background: #f0ebfa;
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .preview-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            margin-right: 0.5rem;
+        }
+        
+        .preview-info {
+            flex: 1;
+        }
+        
+        .preview-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .preview-size {
+            font-size: 0.7rem;
+            color: #666;
+        }
+        
+        .preview-remove {
+            color: var(--danger-color);
+            cursor: pointer;
+            padding: 0.3rem;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 30%;
+            }
+            
+            .sidebar.hidden {
+                display: none;
+            }
+            
+            .chat-content {
+                height: 70%;
+            }
+            
+            .chat-content.full {
+                height: 100%;
+            }
+            
+            .back-btn {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .back-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="app-logo">VibeApp</div>
+        <div class="navbar">
+            <a href="/demo" class="nav-link">Perfil</a>
+            <a href="/demo/match" class="nav-link">Matches</a>
+            <a href="/demo/swipe" class="nav-link">Descubrir</a>
+            <a href="/demo/chat" class="nav-link active">Chat</a>
+        </div>
+    </header>
+
+    <div class="chat-container">
+        <!-- Panel de Conversaciones -->
+        <div class="sidebar" id="sidebar">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Buscar conversaciones...">
+                </div>
+            </div>
+            
+            <div class="conversation-list" id="conversationList">
+                <!-- Las conversaciones se cargarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Panel de Mensajes -->
+        <div class="chat-content" id="chatContent">
+            <!-- Este contenido se mostrará cuando no hay conversación seleccionada -->
+            <div class="no-conversation-selected" id="noConversationSelected">
+                <div class="no-conversation-content">
+                    <i class="far fa-comments"></i>
+                    <h3>Tus conversaciones</h3>
+                    <p>Selecciona una conversación para comenzar a chatear con tus matches musicales.</p>
+                </div>
+            </div>
+            
+            <!-- Este contenido se mostrará cuando se selecciona una conversación -->
+            <div class="chat-selected" id="chatSelected" style="display: none; flex-direction: column; height: 100%;">
+                <div class="chat-header">
+                    <button class="header-btn back-btn" id="backBtn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="profile-pic" id="chatProfilePic" style="background-image: url('https://via.placeholder.com/50');"></div>
+                    <div class="chat-header-info">
+                        <div class="chat-header-name" id="chatHeaderName">Nombre de Usuario</div>
+                        <div class="chat-header-status">
+                            <span id="compatibilityBadge" class="compatibility-badge">85% compatible</span>
+                            <span id="typingIndicator" class="typing-indicator">está escribiendo...</span>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <div class="header-btn">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="header-btn">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Los mensajes se cargarán dinámicamente -->
+                </div>
+                
+                <div class="chat-input">
+                    <div class="input-actions">
+                        <div class="input-action-btn" id="attachButton">
+                            <i class="fas fa-paperclip"></i>
+                        </div>
+                        <div class="input-action-btn">
+                            <i class="fas fa-music"></i>
+                        </div>
+                    </div>
+                    <div class="message-input-container">
+                        <div id="uploadPreview" style="display: none;"></div>
+                        <textarea id="messageInput" class="message-input" placeholder="Escribe un mensaje..." rows="1"></textarea>
+                    </div>
+                    <div class="send-btn" id="sendMessageBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
+    <script>
+        // Configuración y variables globales
+        const API_URL = '/api';
+        const DEMO_MODE = true; // Activar para usar datos de ejemplo
+        let selectedMatchId = null;
+        let currentUserId = 'demo_user_id';
+        let socket = null;
+        let typingTimeout = null;
+        
+        // Datos demo para simulación
+        const demoCurrentUser = {
+            id: 'demo_user_id',
+            name: 'Usuario Demo',
+            profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+        };
+        
+        const demoConversations = [
+            {
+                matchId: 'match_1',
+                user: {
+                    id: 'user_1',
+                    name: 'Laura Martínez',
+                    profilePicture: 'https://via.placeholder.com/50/88c/fff?text=LM'
+                },
+                lastMessage: {
+                    content: '¿Has escuchado el nuevo álbum de Arctic Monkeys?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutos atrás
+                    read: false
+                },
+                unreadCount: 2,
+                musicCompatibility: 85
+            },
+            {
+                matchId: 'match_2',
+                user: {
+                    id: 'user_2',
+                    name: 'Carlos Mendoza',
+                    profilePicture: 'https://via.placeholder.com/50/8cc/fff?text=CM'
+                },
+                lastMessage: {
+                    content: 'Podríamos ir a ese concierto el próximo fin de semana 🎸',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutos atrás
+                    read: true
+                },
+                unreadCount: 0,
+                musicCompatibility: 72
+            },
+            {
+                matchId: 'match_3',
+                user: {
+                    id: 'user_3',
+                    name: 'Elena García',
+                    profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                },
+                lastMessage: {
+                    content: 'Me encantó esa playlist que compartiste, tiene muy buen ritmo',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 horas atrás
+                    read: true
+                },
+                unreadCount: 0,
+                musicCompatibility: 78
+            }
+        ];
+        
+        const demoMessages = {
+            'match_1': [
+                {
+                    _id: 'm1_1',
+                    sender: {
+                        _id: 'user_1',
+                        name: 'Laura Martínez',
+                        profilePicture: 'https://via.placeholder.com/50/88c/fff?text=LM'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Hola! Vi que te gusta Tame Impala',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 día atrás
+                    read: true
+                },
+                {
+                    _id: 'm1_2',
+                    sender: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    receiver: {
+                        _id: 'user_1',
+                        name: 'Laura Martínez',
+                        profilePicture: 'https://via.placeholder.com/50/88c/fff?text=LM'
+                    },
+                    content: 'Sí! Es una de mis bandas favoritas. ¿Qué canciones te gustan más?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 23), // 23 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm1_3',
+                    sender: {
+                        _id: 'user_1',
+                        name: 'Laura Martínez',
+                        profilePicture: 'https://via.placeholder.com/50/88c/fff?text=LM'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Me encanta "The Less I Know The Better" y "Borderline". ¿Has ido a alguno de sus conciertos?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 22), // 22 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm1_4',
+                    sender: {
+                        _id: 'user_1',
+                        name: 'Laura Martínez',
+                        profilePicture: 'https://via.placeholder.com/50/88c/fff?text=LM'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: '¿Has escuchado el nuevo álbum de Arctic Monkeys?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutos atrás
+                    read: false
+                }
+            ],
+            'match_2': [
+                {
+                    _id: 'm2_1',
+                    sender: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    receiver: {
+                        _id: 'user_2',
+                        name: 'Carlos Mendoza',
+                        profilePicture: 'https://via.placeholder.com/50/8cc/fff?text=CM'
+                    },
+                    content: 'Hey Carlos! Vi que también eres fan de Queens of the Stone Age',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm2_2',
+                    sender: {
+                        _id: 'user_2',
+                        name: 'Carlos Mendoza',
+                        profilePicture: 'https://via.placeholder.com/50/8cc/fff?text=CM'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: '¡Sí! Son increíbles, me gustan especialmente sus primeros álbumes. ¿Vas a conciertos a menudo?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm2_3',
+                    sender: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    receiver: {
+                        _id: 'user_2',
+                        name: 'Carlos Mendoza',
+                        profilePicture: 'https://via.placeholder.com/50/8cc/fff?text=CM'
+                    },
+                    content: 'Siempre que puedo! ¿Conoces algún buen concierto próximamente?',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 50), // 50 minutos atrás
+                    read: true
+                },
+                {
+                    _id: 'm2_4',
+                    sender: {
+                        _id: 'user_2',
+                        name: 'Carlos Mendoza',
+                        profilePicture: 'https://via.placeholder.com/50/8cc/fff?text=CM'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Podríamos ir a ese concierto el próximo fin de semana 🎸',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutos atrás
+                    read: true
+                }
+            ],
+            'match_3': [
+                {
+                    _id: 'm3_1',
+                    sender: {
+                        _id: 'user_3',
+                        name: 'Elena García',
+                        profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Hola! Veo que te gusta la música clásica y electrónica, es una combinación interesante!',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm3_2',
+                    sender: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    receiver: {
+                        _id: 'user_3',
+                        name: 'Elena García',
+                        profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                    },
+                    content: 'Sí! Me encanta esa fusión. ¿Has escuchado a Max Richter? Es un buen ejemplo de esa mezcla',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10), // 10 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm3_3',
+                    sender: {
+                        _id: 'user_3',
+                        name: 'Elena García',
+                        profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Sí! "On the Nature of Daylight" es una de mis piezas favoritas. Te enviaré una playlist después',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm3_4',
+                    sender: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    receiver: {
+                        _id: 'user_3',
+                        name: 'Elena García',
+                        profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                    },
+                    content: 'Te comparto esta playlist que armé con música neoclásica y electrónica ambiental. Creo que te gustará.',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 horas atrás
+                    read: true
+                },
+                {
+                    _id: 'm3_5',
+                    sender: {
+                        _id: 'user_3',
+                        name: 'Elena García',
+                        profilePicture: 'https://via.placeholder.com/50/c8c/fff?text=EG'
+                    },
+                    receiver: {
+                        _id: 'demo_user_id',
+                        name: 'Usuario Demo',
+                        profilePicture: 'https://via.placeholder.com/50/88f/fff?text=TÚ'
+                    },
+                    content: 'Me encantó esa playlist que compartiste, tiene muy buen ritmo',
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 horas atrás
+                    read: true
+                }
+            ]
+        };
+        
+        // Elementos del DOM
+        const conversationList = document.getElementById('conversationList');
+        const noConversationSelected = document.getElementById('noConversationSelected');
+        const chatSelected = document.getElementById('chatSelected');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        const chatHeaderName = document.getElementById('chatHeaderName');
+        const chatProfilePic = document.getElementById('chatProfilePic');
+        const compatibilityBadge = document.getElementById('compatibilityBadge');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const backBtn = document.getElementById('backBtn');
+        const sidebar = document.getElementById('sidebar');
+        const attachButton = document.getElementById('attachButton');
+        const uploadPreview = document.getElementById('uploadPreview');
+        
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Función principal
+        function initApp() {
+            // Inicializar Socket.IO en modo demo o producción
+            setupSocket();
+            
+            // Cargar conversaciones
+            loadConversations();
+            
+            // Configurar eventos
+            setupEventListeners();
+        }
+        
+        // Inicializar Socket.IO
+        function setupSocket() {
+            if (DEMO_MODE) {
+                // En modo demo, simular Socket.IO
+                socket = {
+                    emit: (event, data) => {
+                        console.log(`Socket emit: ${event}`, data);
+                        
+                        // Simular tipeo
+                        if (event === 'typing') {
+                            setTimeout(() => {
+                                simulateTyping(data.matchId, data.isTyping);
+                            }, 500);
+                        }
+                    },
+                    on: (event, callback) => {
+                        console.log(`Socket on: ${event}`);
+                    }
+                };
+            } else {
+                // Conexión real a Socket.IO
+                socket = io({
+                    query: {
+                        token: localStorage.getItem('token')
+                    }
+                });
+                
+                // Escuchar eventos
+                socket.on('connect', () => {
+                    console.log('Conectado a Socket.IO');
+                });
+                
+                socket.on('newMessage', (data) => {
+                    if (data.message.match.toString() === selectedMatchId) {
+                        appendMessage(data.message);
+                        markMessagesAsRead(selectedMatchId);
+                    }
+                    
+                    // Actualizar conversaciones
+                    loadConversations();
+                });
+                
+                socket.on('userTyping', (data) => {
+                    if (data.userId !== currentUserId) {
+                        showTypingIndicator(data.isTyping);
+                    }
+                });
+                
+                socket.on('disconnect', () => {
+                    console.log('Desconexión de Socket.IO');
+                });
+            }
+        }
+        
+        // Simular tipeo en modo demo
+        function simulateTyping(matchId, isTyping) {
+            if (matchId === selectedMatchId) {
+                showTypingIndicator(isTyping);
+                
+                if (isTyping) {
+                    // Simular un mensaje después de un tiempo
+                    setTimeout(() => {
+                        showTypingIndicator(false);
+                        
+                        // Simular respuesta solo si es typing
+                        const conversation = demoConversations.find(conv => conv.matchId === matchId);
+                        if (conversation) {
+                            const newMessage = {
+                                _id: `demo_reply_${Date.now()}`,
+                                sender: {
+                                    _id: conversation.user.id,
+                                    name: conversation.user.name,
+                                    profilePicture: conversation.user.profilePicture
+                                },
+                                receiver: {
+                                    _id: currentUserId,
+                                    name: demoCurrentUser.name,
+                                    profilePicture: demoCurrentUser.profilePicture
+                                },
+                                content: generateDemoReply(),
+                                createdAt: new Date(),
+                                read: false
+                            };
+                            
+                            // Añadir mensaje a la conversación demo
+                            if (!demoMessages[matchId]) {
+                                demoMessages[matchId] = [];
+                            }
+                            demoMessages[matchId].push(newMessage);
+                            
+                            // Actualizar última conversación
+                            conversation.lastMessage = {
+                                content: newMessage.content,
+                                createdAt: newMessage.createdAt,
+                                read: false
+                            };
+                            conversation.unreadCount += 1;
+                            
+                            // Si la conversación está seleccionada, mostrar el mensaje
+                            if (matchId === selectedMatchId) {
+                                appendMessage(newMessage);
+                                markMessagesAsRead(matchId);
+                            }
+                            
+                            // Actualizar lista de conversaciones
+                            loadConversations();
+                        }
+                    }, Math.random() * 3000 + 2000); // Entre 2-5 segundos
+                }
+            }
+        }
+        
+        // Generar respuestas aleatorias para el modo demo
+        function generateDemoReply() {
+            const replies = [
+                "¿Qué otros artistas te gustan?",
+                "¿Has ido a muchos conciertos últimamente?",
+                "Me encantaría conocer más de tus gustos musicales",
+                "¿Tienes alguna playlist que quieras compartir?",
+                "Tenemos gustos musicales muy parecidos 😊",
+                "¿Qué te parece si vamos a un concierto?",
+                "Acabo de descubrir una banda increíble que creo que te gustaría",
+                "¿Escuchas música mientras trabajas?",
+                "¿Tienes algún género musical que te guste para relajarte?",
+                "¿Tocas algún instrumento?"
+            ];
+            
+            return replies[Math.floor(Math.random() * replies.length)];
+        }
+        
+        // Mostrar indicador de tipeo
+        function showTypingIndicator(isTyping) {
+            if (isTyping) {
+                typingIndicator.classList.add('show');
+            } else {
+                typingIndicator.classList.remove('show');
+            }
+        }
+        
+        // Cargar conversaciones
+        function loadConversations() {
+            if (DEMO_MODE) {
+                renderConversations(demoConversations);
+            } else {
+                // En una app real, obtener conversaciones de la API
+                fetch(`${API_URL}/messages/conversations`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderConversations(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando conversaciones:', error);
+                });
+            }
+        }
+        
+        // Renderizar lista de conversaciones
+        function renderConversations(conversations) {
+            conversationList.innerHTML = '';
+            
+            if (conversations.length === 0) {
+                conversationList.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="far fa-comments"></i>
+                        <h3>No hay conversaciones</h3>
+                        <p>Haz match con otros usuarios para comenzar a chatear.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            conversations.forEach(conversation => {
+                const lastMessageTime = conversation.lastMessage 
+                    ? formatMessageTime(conversation.lastMessage.createdAt) 
+                    : '';
+                
+                const lastMessageText = conversation.lastMessage 
+                    ? conversation.lastMessage.content 
+                    : 'Sin mensajes';
+                
+                const unreadBadge = conversation.unreadCount > 0 
+                    ? `<div class="unread-count">${conversation.unreadCount}</div>` 
+                    : '';
+                
+                const conversationItem = document.createElement('div');
+                conversationItem.className = 'conversation-item';
+                conversationItem.dataset.matchId = conversation.matchId;
+                
+                if (selectedMatchId === conversation.matchId) {
+                    conversationItem.classList.add('active');
+                }
+                
+                conversationItem.innerHTML = `
+                    <div class="profile-pic" style="background-image: url('${conversation.user.profilePicture}');"></div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">
+                            ${conversation.user.name}
+                            <span class="conversation-time">${lastMessageTime}</span>
+                        </div>
+                        <div class="conversation-message">
+                            ${lastMessageText}
+                            ${unreadBadge}
+                        </div>
+                    </div>
+                `;
+                
+                conversationItem.addEventListener('click', () => {
+                    selectConversation(conversation);
+                });
+                
+                conversationList.appendChild(conversationItem);
+            });
+        }
+        
+        // Seleccionar una conversación
+        function selectConversation(conversation) {
+            // Actualizar interfaz
+            selectedMatchId = conversation.matchId;
+            chatHeaderName.textContent = conversation.user.name;
+            chatProfilePic.style.backgroundImage = `url('${conversation.user.profilePicture}')`;
+            compatibilityBadge.textContent = `${conversation.musicCompatibility}% compatible`;
+            
+            // Actualizar clases activas
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.matchId === selectedMatchId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // En móvil, ocultar sidebar
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+                chatSelected.classList.add('full');
+            }
+            
+            // Mostrar panel de chat
+            noConversationSelected.style.display = 'none';
+            chatSelected.style.display = 'flex';
+            
+            // Cargar mensajes
+            loadMessages(selectedMatchId);
+            
+            // Marcar mensajes como leídos
+            markMessagesAsRead(selectedMatchId);
+            
+            // Unirse a la sala de este match
+            socket.emit('joinMatchRoom', { matchId: selectedMatchId });
+        }
+        
+        // Cargar mensajes de una conversación
+        function loadMessages(matchId) {
+            chatMessages.innerHTML = '';
+            
+            if (DEMO_MODE) {
+                const messages = demoMessages[matchId] || [];
+                renderMessages(messages);
+            } else {
+                // En una app real, obtener mensajes de la API
+                fetch(`${API_URL}/messages/${matchId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderMessages(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando mensajes:', error);
+                });
+            }
+        }
+        
+        // Renderizar mensajes
+        function renderMessages(messages) {
+            chatMessages.innerHTML = '';
+            
+            if (messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="far fa-comments"></i>
+                        <h3>Sin mensajes</h3>
+                        <p>¡Sé el primero en iniciar la conversación!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let currentDate = null;
+            
+            messages.forEach(message => {
+                // Agrupar por fecha
+                const messageDate = new Date(message.createdAt).toDateString();
+                
+                if (messageDate !== currentDate) {
+                    currentDate = messageDate;
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'message-date';
+                    dateHeader.innerHTML = `<span>${formatDate(message.createdAt)}</span>`;
+                    chatMessages.appendChild(dateHeader);
+                }
+                
+                appendMessage(message, false);
+            });
+            
+            // Scroll al último mensaje
+            scrollToBottom();
+        }
+        
+        // Añadir un mensaje al chat
+        function appendMessage(message, shouldScroll = true) {
+            const isSelf = message.sender._id === currentUserId;
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${isSelf ? 'message-self' : 'message-other'}`;
+            
+            messageElement.innerHTML = `
+                <div class="message-avatar">
+                    <img src="${isSelf ? demoCurrentUser.profilePicture : message.sender.profilePicture}" alt="${isSelf ? 'Tu avatar' : message.sender.name}">
+                </div>
+                <div class="message-content">
+                    <div class="message-text">${message.content}</div>
+                    <div class="message-time">${formatMessageTime(message.createdAt)}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageElement);
+            
+            if (shouldScroll) {
+                scrollToBottom();
+            }
+        }
+        
+        // Marcar mensajes como leídos
+        function markMessagesAsRead(matchId) {
+            if (DEMO_MODE) {
+                // Actualizar unreadCount en conversación demo
+                const conversation = demoConversations.find(conv => conv.matchId === matchId);
+                if (conversation) {
+                    conversation.unreadCount = 0;
+                }
+                
+                // Marcar mensajes como leídos
+                if (demoMessages[matchId]) {
+                    demoMessages[matchId].forEach(msg => {
+                        if (msg.receiver._id === currentUserId) {
+                            msg.read = true;
+                        }
+                    });
+                }
+                
+                // Actualizar conversaciones
+                loadConversations();
+            } else {
+                // En una app real, marcar mensajes como leídos en la API
+                fetch(`${API_URL}/messages/read/${matchId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar UI
+                        loadConversations();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marcando mensajes como leídos:', error);
+                });
+            }
+        }
+        
+        // Enviar un mensaje
+        function sendMessage() {
+            const content = messageInput.value.trim();
+            
+            if (!content || !selectedMatchId) return;
+            
+            if (DEMO_MODE) {
+                // Crear mensaje demo
+                const conversation = demoConversations.find(conv => conv.matchId === selectedMatchId);
+                
+                if (conversation) {
+                    const newMessage = {
+                        _id: `demo_${Date.now()}`,
+                        sender: {
+                            _id: currentUserId,
+                            name: demoCurrentUser.name,
+                            profilePicture: demoCurrentUser.profilePicture
+                        },
+                        receiver: {
+                            _id: conversation.user.id,
+                            name: conversation.user.name,
+                            profilePicture: conversation.user.profilePicture
+                        },
+                        content,
+                        createdAt: new Date(),
+                        read: false
+                    };
+                    
+                    // Añadir mensaje a conversación demo
+                    if (!demoMessages[selectedMatchId]) {
+                        demoMessages[selectedMatchId] = [];
+                    }
+                    demoMessages[selectedMatchId].push(newMessage);
+                    
+                    // Actualizar última conversación
+                    conversation.lastMessage = {
+                        content,
+                        createdAt: new Date(),
+                        read: false
+                    };
+                    
+                    // Añadir mensaje al chat
+                    appendMessage(newMessage);
+                    
+                    // Limpiar entrada
+                    messageInput.value = '';
+                    
+                    // Actualizar lista de conversaciones
+                    loadConversations();
+                    
+                    // Simular respuesta después de un tiempo
+                    setTimeout(() => {
+                        showTypingIndicator(true);
+                        
+                        // Mostrar tipeo durante un tiempo aleatorio
+                        setTimeout(() => {
+                            socket.emit('typing', {
+                                matchId: selectedMatchId,
+                                isTyping: true
+                            });
+                        }, Math.random() * 2000 + 1000);
+                    }, Math.random() * 2000 + 1000);
+                }
+            } else {
+                // En una app real, enviar mensaje a través de la API
+                fetch(`${API_URL}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        matchId: selectedMatchId,
+                        content
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Añadir mensaje al chat
+                        appendMessage(data.data);
+                        
+                        // Limpiar entrada
+                        messageInput.value = '';
+                        
+                        // Actualizar conversaciones
+                        loadConversations();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error enviando mensaje:', error);
+                });
+            }
+        }
+        
+        // Notificar estado de "escribiendo"
+        function notifyTyping(isTyping) {
+            if (selectedMatchId && socket) {
+                socket.emit('typing', {
+                    matchId: selectedMatchId,
+                    isTyping
+                });
+            }
+        }
+        
+        // Configurar eventos
+        function setupEventListeners() {
+            // Enviar mensaje al hacer clic en el botón
+            sendMessageBtn.addEventListener('click', sendMessage);
+            
+            // Enviar mensaje al presionar Enter (sin shift)
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Detectar cuando el usuario está escribiendo
+            messageInput.addEventListener('input', () => {
+                // Limpiar timeout anterior
+                if (typingTimeout) {
+                    clearTimeout(typingTimeout);
+                }
+                
+                // Notificar que está escribiendo
+                notifyTyping(true);
+                
+                // Después de 1.5 segundos sin escribir, notificar que ya no está escribiendo
+                typingTimeout = setTimeout(() => {
+                    notifyTyping(false);
+                }, 1500);
+            });
+            
+            // Botón volver (en móvil)
+            backBtn.addEventListener('click', () => {
+                sidebar.classList.remove('hidden');
+                chatSelected.classList.remove('full');
+                noConversationSelected.style.display = 'flex';
+                chatSelected.style.display = 'none';
+                selectedMatchId = null;
+            });
+            
+            // Simular adjuntar archivos
+            attachButton.addEventListener('click', () => {
+                alert('Función de adjuntar archivos en desarrollo');
+            });
+        }
+        
+        // Desplazar al final del chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Formatear tiempo de mensaje
+        function formatMessageTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            
+            // Si es hoy, mostrar hora
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            // Si es ayer
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) {
+                return 'Ayer';
+            }
+            
+            // Si es esta semana
+            const oneWeekAgo = new Date(now);
+            oneWeekAgo.setDate(now.getDate() - 7);
+            if (date > oneWeekAgo) {
+                return date.toLocaleDateString([], { weekday: 'short' });
+            }
+            
+            // Otro caso
+            return date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+        }
+        
+        // Formatear fecha completa
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            
+            // Si es hoy
+            if (date.toDateString() === now.toDateString()) {
+                return 'Hoy';
+            }
+            
+            // Si es ayer
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) {
+                return 'Ayer';
+            }
+            
+            // Fecha completa
+            return date.toLocaleDateString([], { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+    </script>
+</body>
+</html> 
